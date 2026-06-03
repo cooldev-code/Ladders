@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 _BACKEND_ROOT = Path(__file__).resolve().parents[1]
@@ -5,16 +6,27 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 def _resolve_project_root() -> Path:
-    for candidate in (_REPO_ROOT, _BACKEND_ROOT):
+    candidates = (
+        _BACKEND_ROOT,
+        _REPO_ROOT,
+        _BACKEND_ROOT.parent,
+        Path.cwd(),
+    )
+    for candidate in candidates:
         if (candidate / "data" / "feeds").is_dir():
             return candidate
-    return _REPO_ROOT
+    return _BACKEND_ROOT
+
+
+def _resolve_rejected_jobs_log(project_root: Path) -> Path:
+    if os.getenv("VERCEL"):
+        return Path("/tmp/rejected_jobs.jsonl")
+    return project_root / "data" / "rejected_jobs.jsonl"
 
 
 PROJECT_ROOT = _resolve_project_root()
 FEEDS_DIR = PROJECT_ROOT / "data" / "feeds"
-REJECTED_JOBS_LOG = PROJECT_ROOT / "data" / "rejected_jobs.jsonl"
-
+REJECTED_JOBS_LOG = _resolve_rejected_jobs_log(PROJECT_ROOT)
 # Static USD conversion rates (mock rates for salary normalization).
 CURRENCY_TO_USD: dict[str, float] = {
     "USD": 1.0,

@@ -44,16 +44,20 @@ class RejectionLogger:
     def log_all(self, rejected: list[RejectedJob]) -> None:
         with self._lock:
             self._entries = list(rejected)
-        self._log_path.parent.mkdir(parents=True, exist_ok=True)
-        with self._log_path.open("w", encoding="utf-8") as handle:
-            for entry in rejected:
-                payload = {
-                    "job_id": entry.job.id,
-                    "title": entry.job.title,
-                    "company": entry.job.company,
-                    "reasons": entry.reasons,
-                }
-                handle.write(json.dumps(payload) + "\n")
+        try:
+            self._log_path.parent.mkdir(parents=True, exist_ok=True)
+            with self._log_path.open("w", encoding="utf-8") as handle:
+                for entry in rejected:
+                    payload = {
+                        "job_id": entry.job.id,
+                        "title": entry.job.title,
+                        "company": entry.job.company,
+                        "reasons": entry.reasons,
+                    }
+                    handle.write(json.dumps(payload) + "\n")
+        except OSError:
+            # Serverless runtimes (e.g. Vercel) may only allow writes under /tmp.
+            pass
 
     def list_all(self) -> list[RejectedJob]:
         with self._lock:

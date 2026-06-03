@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.admin import build_admin_router
 from app.api.routes.jobs import build_jobs_router
-from app.config import REJECTED_JOBS_LOG
+from app.config import FEEDS_DIR, REJECTED_JOBS_LOG
 from app.pipeline import JobPipeline
 from app.storage.query import JobQueryService
 from app.storage.repository import ApprovedJobRepository, RejectionLogger
@@ -20,7 +20,8 @@ pipeline = JobPipeline(repository, rejection_logger)
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    pipeline.run()
+    if FEEDS_DIR.is_dir():
+        pipeline.run()
     yield
 
 
