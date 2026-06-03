@@ -9,6 +9,7 @@ from app.api.schemas import (
 from app.storage.pagination import paginate
 from app.storage.query import JobQueryService, SortField, SortOrder
 from app.storage.repository import ApprovedJobRepository
+from app.config import API_PREFIX
 from app.storage.stats import summarize_catalog
 
 
@@ -16,7 +17,7 @@ def build_jobs_router(
     repository: ApprovedJobRepository,
     query_service: JobQueryService,
 ) -> APIRouter:
-    router = APIRouter(prefix="/api", tags=["jobs"])
+    router = APIRouter(prefix=API_PREFIX, tags=["jobs"])
 
     @router.get("/jobs", response_model=PaginatedJobsResponse)
     def list_jobs(

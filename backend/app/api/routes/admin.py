@@ -1,15 +1,20 @@
 from fastapi import APIRouter
 
 from app.api.schemas import IngestResponse, RejectedJobResponse
+from app.config import API_PREFIX
 from app.pipeline import JobPipeline
 from app.storage.repository import RejectionLogger
+
+
+def _admin_prefix() -> str:
+    return f"{API_PREFIX}/admin" if API_PREFIX else "/admin"
 
 
 def build_admin_router(
     pipeline: JobPipeline,
     rejection_logger: RejectionLogger,
 ) -> APIRouter:
-    router = APIRouter(prefix="/api/admin", tags=["admin"])
+    router = APIRouter(prefix=_admin_prefix(), tags=["admin"])
 
     @router.post("/ingest", response_model=IngestResponse)
     def run_ingest() -> IngestResponse:

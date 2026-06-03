@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes.admin import build_admin_router
 from app.api.routes.jobs import build_jobs_router
-from app.config import FEEDS_DIR, REJECTED_JOBS_LOG
+from app.config import API_PREFIX, FEEDS_DIR, REJECTED_JOBS_LOG
 from app.pipeline import JobPipeline
 from app.storage.query import JobQueryService
 from app.storage.repository import ApprovedJobRepository, RejectionLogger
@@ -40,7 +40,9 @@ def create_app() -> FastAPI:
     app.include_router(build_jobs_router(repository, query_service))
     app.include_router(build_admin_router(pipeline, rejection_logger))
 
-    @app.get("/api/health", tags=["health"])
+    health_path = f"{API_PREFIX}/health" if API_PREFIX else "/health"
+
+    @app.get(health_path, tags=["health"])
     def health() -> dict[str, str]:
         return {"status": "ok"}
 
