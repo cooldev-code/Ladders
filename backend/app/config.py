@@ -1,6 +1,17 @@
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
+_BACKEND_ROOT = Path(__file__).resolve().parents[1]
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _resolve_project_root() -> Path:
+    for candidate in (_REPO_ROOT, _BACKEND_ROOT):
+        if (candidate / "data" / "feeds").is_dir():
+            return candidate
+    return _REPO_ROOT
+
+
+PROJECT_ROOT = _resolve_project_root()
 FEEDS_DIR = PROJECT_ROOT / "data" / "feeds"
 REJECTED_JOBS_LOG = PROJECT_ROOT / "data" / "rejected_jobs.jsonl"
 
